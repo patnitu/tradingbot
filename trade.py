@@ -14,10 +14,11 @@ openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
 # Function to Fetch BTC/USD Data from Binance
 def fetch_btc_data():
-  url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=50"
-  headers = {"User-Agent": "Mozilla/5.0"}
+  url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart"
+  params = {"vs_currency": "usd", "days": "1"} # Removed 'interval' to avoid errors
+
   try:
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, params=params)
     data = response.json()
     if not isinstance(data, list):
         st.error("Error fetching data. {data}")

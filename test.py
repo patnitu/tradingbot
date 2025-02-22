@@ -16,7 +16,7 @@ def fetch_btc_data():
     df = pd.DataFrame(data["prices"], columns=["Timestamp", "Close"])
     df["Timestamp"] = pd.to_datetime(df["Timestamp"], unit="ms")
     df.set_index("Timestamp", inplace=True)
-
+    st.write("Df is {df}")
     return df
 
 fetch_btc_data()

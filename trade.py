@@ -20,7 +20,7 @@ def fetch_btc_data():
   try:
     response = requests.get(url, params=params)
     data = response.json()
-   if "prices" not in data:
+    if "prices" not in data:
         st.error(f"Error fetching data: {data}")
         return None
 

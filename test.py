@@ -12,7 +12,7 @@ import pandas as pd
 import streamlit as st
 
 def fetch_btc_data():
-    url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=minute"
+    url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=minutely"
     
     try:
         response = requests.get(url)
@@ -30,5 +30,6 @@ def fetch_btc_data():
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return None
+
 
 fetch_btc_data()

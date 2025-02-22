@@ -20,8 +20,8 @@ def fetch_btc_data():
   try:
     response = requests.get(url, params=params)
     data = response.json()
-    if not isinstance(data, list):
-        st.error("Error fetching data. {data}")
+   if "prices" not in data:
+        st.error(f"Error fetching data: {data}")
         return None
 
     df = pd.DataFrame(response, columns=[

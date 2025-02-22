@@ -9,8 +9,9 @@ import os
 from datetime import datetime
 
 # Load API keys from environment variables
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+
+openai.api_key = st.secrets.get("OPENAI_API_KEY")
+
 # Function to Fetch BTC/USD Data from Binance
 def fetch_btc_data():
     url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=50"
@@ -80,21 +81,14 @@ def plot_candlestick_chart(df):
 st.title("🟢 Crypto Trading AI Assistant")
 st.sidebar.header("Settings")
 
-# Toggle Auto Refresh
-if "auto_refresh" not in st.session_state:
-    st.session_state.auto_refresh = True  # Auto-refresh enabled by default
-
-if st.sidebar.button("Toggle Auto Refresh"):
-    st.session_state.auto_refresh = not st.session_state.auto_refresh
-
-# Alert Threshold Input
+# Auto-refresh setting
+auto_refresh = st.sidebar.checkbox("Auto-refresh every minute", value=True)
 alert_threshold = st.sidebar.number_input("Alert if BTC crosses (USD)", min_value=0, value=0, step=100)
-
-# Fetch Data Button
+disable_auto_refresh = st.sidebar.checkbox("Disable Auto-refresh", value=False)
 fetch_data = st.sidebar.button("Fetch BTC/USD Data")
 run_analysis = st.sidebar.button("Run LLM Analysis")
 
-if fetch_data or st.session_state.auto_refresh:
+if fetch_data or (auto_refresh and not disable_auto_refresh):
     df = fetch_btc_data()
     if df is not None:
         df = compute_indicators(df)
@@ -102,13 +96,13 @@ if fetch_data or st.session_state.auto_refresh:
         plot_candlestick_chart(df)
         st.subheader("Latest Data")
         st.dataframe(df.tail(10))
-
+        
         # Alert logic
         if alert_threshold > 0 and df["Close"].iloc[-1] > alert_threshold:
             st.sidebar.warning(f"🚨 BTC/USD crossed {alert_threshold} USD!")
-
-        # Auto-refresh every 60 seconds (only if enabled)
-        if st.session_state.auto_refresh:
+        
+        # Auto-refresh every 60 seconds
+        if auto_refresh and not disable_auto_refresh:
             time.sleep(1)
             st.rerun()
 
@@ -120,9 +114,22 @@ if run_analysis:
         strategy = generate_strategy(df)
         st.subheader("Trading Strategy 🧠")
         st.write(strategy)
+        
+        latest_price = df["Close"].iloc[-1]
+        
         if "buy" in strategy.lower():
             st.success("✅ Suggested Action: BUY")
+            stop_loss = latest_price * 0.99  # 1% below
+            target_price = latest_price * 1.02  # 2% above
         elif "sell" in strategy.lower():
             st.error("❌ Suggested Action: SELL")
+            stop_loss = latest_price * 1.01  # 1% above
+            target_price = latest_price * 0.98  # 2% below
         else:
             st.warning("🔄 Suggested Action: HOLD")
+            stop_loss = None
+            target_price = None
+        
+        if stop_loss and target_price:
+            st.write(f"**Stop Loss (SL):** ${stop_loss:.2f}")
+            st.write(f"**Target Price (TP):** ${target_price:.2f}")

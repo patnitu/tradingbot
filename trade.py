@@ -33,7 +33,7 @@ def fetch_btc_data():
     df.set_index("Timestamp", inplace=True)
     df = df.astype(float)
     return df
- except Exception as e:
+  except Exception as e:
     st.error(f"Error parsing data: {e}")
     return None
 # Function to Compute Technical Indicators

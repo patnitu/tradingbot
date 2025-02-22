@@ -103,7 +103,7 @@ if fetch_data or (auto_refresh and not disable_auto_refresh):
         
         # Auto-refresh every 60 seconds
         if auto_refresh and not disable_auto_refresh:
-            time.sleep(1)
+            time.sleep(60)
             st.rerun()
 
 if run_analysis:

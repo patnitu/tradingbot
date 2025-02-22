@@ -14,11 +14,13 @@ openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
 # Function to Fetch BTC/USD Data from Binance
 def fetch_btc_data():
-    url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=50"
-    response = requests.get(url).json()
-
-    if not isinstance(response, list):
-        st.error("Error fetching data. Try again later.")
+  url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=50"
+  headers = {"User-Agent": "Mozilla/5.0"}
+  try:
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    if not isinstance(data, list):
+        st.error("Error fetching data. {data}")
         return None
 
     df = pd.DataFrame(response, columns=[
@@ -31,7 +33,9 @@ def fetch_btc_data():
     df.set_index("Timestamp", inplace=True)
     df = df.astype(float)
     return df
-
+ except Exception as e:
+    st.error(f"Error parsing data: {e}")
+    return None
 # Function to Compute Technical Indicators
 def compute_indicators(df):
     df["SMA_20"] = df["Close"].rolling(window=20).mean()

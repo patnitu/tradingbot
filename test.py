@@ -4,7 +4,7 @@ import streamlit as st
 
 def fetch_btc_data():
     url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart"
-    params = {"vs_currency": "usd", "days": "1", "interval": "1"}
+    params = {"vs_currency": "usd", "days": "1"}  # Removed 'interval' to avoid errors
     
     response = requests.get(url, params=params)
     data = response.json()
@@ -18,4 +18,5 @@ def fetch_btc_data():
     df.set_index("Timestamp", inplace=True)
 
     return df
+
 fetch_btc_data()
